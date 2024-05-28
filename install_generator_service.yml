@@ -3,9 +3,11 @@
   hosts: all
   become: yes
 
+  vars_files:
+    - secret.enc
   vars:
     github_repo: "https://github.com/ralfchristian/doorwaysftw"
-    github_token: "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"
+      #github_token: "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"
     clone_dest: "~/doorwaysftw"
     go_binary_name: "generator_service"
     project_dir: "/root/doorwaysftw/generator_service"
