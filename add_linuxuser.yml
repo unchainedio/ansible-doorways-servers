@@ -1,0 +1,32 @@
+---
+- name: Ensure user linuxuser is present
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Add user linuxuser
+      ansible.builtin.user:
+        name: linuxuser
+        comment: ""
+        state: present
+        createhome: yes
+
+
+- name: Ensure user linuxuser is in the correct groups
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Add user linuxuser to www-data group
+      ansible.builtin.user:
+        name: linuxuser
+        groups: www-data
+        append: yes
+
+    - name: Add user linuxuser to sudo group
+      ansible.builtin.user:
+        name: linuxuser
+        groups: sudo
+        append: yes
+
+

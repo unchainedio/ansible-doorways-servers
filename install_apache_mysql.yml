@@ -1,0 +1,23 @@
+---
+- name: Ensure Apache and MySQL are installed
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Update the apt package index
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install Apache packages
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - apache2-utils
+        state: present
+        force_apt_get: yes
+
+    - name: Install MySQL server
+      ansible.builtin.apt:
+        name: mysql-server
+        state: present
+        force_apt_get: yes

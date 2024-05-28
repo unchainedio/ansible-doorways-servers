@@ -1,0 +1,23 @@
+---
+- name: Install PHP and required PHP extensions
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install PHP and required extensions
+      ansible.builtin.package:
+        name:
+          - php
+          - php-gd
+          - php-mysql
+          - php-curl
+          - php-cli
+          - php-xmlrpc
+          - php-mbstring
+          - php-xml
+          - php-bcmath
+          - php-bz2
+          - php-imap
+          - php-soap
+        state: present
+

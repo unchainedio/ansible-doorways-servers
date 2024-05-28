@@ -1,0 +1,46 @@
+---
+- name: Ensure Apache modules are enabled
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Enable SSL module
+      ansible.builtin.command:
+        cmd: a2enmod ssl
+        creates: /etc/apache2/mods-enabled/ssl.load
+
+    - name: Enable rewrite module
+      ansible.builtin.command:
+        cmd: a2enmod rewrite
+        creates: /etc/apache2/mods-enabled/rewrite.load
+
+    - name: Enable headers module
+      ansible.builtin.command:
+        cmd: a2enmod headers
+        creates: /etc/apache2/mods-enabled/headers.load
+
+    - name: Enable proxy module
+      ansible.builtin.command:
+        cmd: a2enmod proxy
+        creates: /etc/apache2/mods-enabled/proxy.load
+
+    - name: Enable proxy_http module
+      ansible.builtin.command:
+        cmd: a2enmod proxy_http
+        creates: /etc/apache2/mods-enabled/proxy_http.load
+  
+
+    - name: Update MaxRequestWorkers in mpm_prefork.conf
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/mods-enabled/mpm_prefork.conf
+        regexp: '^MaxRequestWorkers\s+'
+        line: 'MaxRequestWorkers 2048'
+
+  
+  
+    - name: Update LogFormat in apache2.conf
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^LogFormat\s+"[^"]*"\s+combined'
+        line: 'LogFormat "%h %l %u %t \"%{Host}i %r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined'
+

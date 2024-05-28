@@ -1,0 +1,36 @@
+---
+- name: Configure MySQL settings
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Ensure key_buffer_size is set to 128M
+      ansible.builtin.lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^key_buffer_size\s*=\s*\d+[KMG]?'
+        line: 'key_buffer_size = 128M'
+        state: present
+      notify: Restart MySQL
+
+    - name: Ensure max_allowed_packet is set to 128M
+      ansible.builtin.lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^#?\s*max_allowed_packet\s*=\s*\d+[KMG]?'
+        line: 'max_allowed_packet = 128M'
+        state: present
+      notify: Restart MySQL
+
+    - name: Ensure max_connections is set to 1000
+      ansible.builtin.lineinfile:
+        path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        regexp: '^#?\s*max_connections\s*=\s*\d+'
+        line: 'max_connections = 1000'
+        state: present
+      notify: Restart MySQL
+
+  handlers:
+    - name: Restart MySQL
+      ansible.builtin.service:
+        name: mysql
+        state: restarted
+

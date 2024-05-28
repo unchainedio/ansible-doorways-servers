@@ -1,0 +1,24 @@
+---
+- name: Ensure system packages are up to date and install necessary packages
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Update the apt package index
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Upgrade all packages to the latest version
+      ansible.builtin.apt:
+        upgrade: dist
+        force_apt_get: yes
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - mc
+          - nload
+          - speedtest-cli
+        state: present
+        force_apt_get: yes
+

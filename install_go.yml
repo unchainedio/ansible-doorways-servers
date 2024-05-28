@@ -1,0 +1,42 @@
+# go-setup-playbook.yml
+---
+- name: Go Setup
+  hosts: all `
+  vars:
+    version: 1.21.4
+  tasks:
+    - name: Download go tar file if not present
+      get_url:
+        url: https://go.dev/dl/go{{ version }}.linux-amd64.tar.gz
+        dest: /tmp/go{{ version }}.linux-amd64.tar.gz
+        mode: '0644'
+      changed_when: false
+
+    - name: Delete previous Go installation if present
+      ansible.builtin.file:
+        path: /usr/local/go
+        state: absent
+      become: true
+
+    - name: Extract Go tar file
+      ansible.builtin.unarchive:
+        src: /tmp/go{{ version }}.linux-amd64.tar.gz
+        dest: /usr/local/
+        remote_src: true
+      become: true
+
+    - name: Ensure Go binary path is added to ~/.profile
+      ansible.builtin.lineinfile:
+        path: ~/.profile
+        line: 'export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin'
+        create: true
+        state: present
+
+    - name: Source updated profile and test Go version
+      shell: . ~/.profile && go version
+      register: go_version_output
+
+    - name: Display Go version
+      debug:
+        msg: "{{ go_version_output.stdout }}"
+

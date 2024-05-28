@@ -1,0 +1,100 @@
+---
+- name: Clone private GitHub repo and build Go binary
+  hosts: all
+  become: yes
+
+  vars:
+    github_repo: "https://github.com/ralfchristian/doorwaysftw"
+    github_token: "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"
+    clone_dest: "~/doorwaysftw"
+    go_binary_name: "generator_service"
+    project_dir: "/root/doorwaysftw/generator_service"
+    go_version: 1.21
+    user: "linuxuser"
+
+
+  tasks:
+    - name: Ensure the destination directory is absent
+      ansible.builtin.file:
+        path: "{{ clone_dest }}"
+        state: absent
+          #become_user: yes
+          #
+    - name: Clone the private GitHub repository
+      ansible.builtin.git:
+        repo: "https://{{ github_token }}@github.com/ralfchristian/doorwaysftw.git"
+        dest: "{{ clone_dest }}"
+        version: main
+        force: yes
+        accept_hostkey: yes
+
+    - name: Replace Go version in go.mod
+      lineinfile:
+        path: "{{ project_dir }}/go.mod"
+        regexp: '^go\s+\d+\.\d+(\.\d+)?'
+        line: "go {{ go_version }}"
+        state: present
+
+
+
+    - name: Compile Go binary
+      ansible.builtin.shell: |
+        go build -o {{ go_binary_name }} main.go
+      args:
+        chdir: "{{ project_dir }}"
+          #become_user: yes
+
+    - name: Ensure Go binary is executable
+      ansible.builtin.file:
+        path: "{{ project_dir }}/{{ go_binary_name }}"
+        mode: '0755'
+        owner: root
+        group: root
+
+
+    - name: Create systemd service file for generator_service
+      copy:
+        dest: /etc/systemd/system/{{ go_binary_name }}.service
+        content: |
+          [Unit]
+          Description=Generator Service
+          After=network.target
+
+          [Service]
+          Type=simple
+          ExecStart={{ project_dir }}/{{go_binary_name}}
+          WorkingDirectory={{ project_dir}}
+          StandardOutput=append:/var/log/{{ go_binary_name }}.log
+          StandardError=append:/var/log/{{ go_binary_name }}.err
+          Restart=always
+          User=root
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd to apply new service file
+      command: systemctl daemon-reload
+
+    - name: Enable generator_service to start on boot
+      systemd:
+        name: "{{ go_binary_name }}"
+        enabled: yes
+        state: started
+
+
+
+          #- name: Run Go binary in background
+          #shell: nohup ./generator_service >generator.log &
+          #args:
+          #executable: /bin/bash
+          #chdir: /root/doorwaysftw/generator_service
+      
+
+          #- name: Ensure Go binary is running
+          #command: pgrep -f generator_service
+          #register: go_binary_process
+          #retries: 3
+          #delay: 5
+          #until: go_binary_process.rc == 0
+
+    

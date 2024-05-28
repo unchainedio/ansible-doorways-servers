@@ -1,0 +1,39 @@
+---
+- name: Harden/Configure SSH daemon
+  hosts: all
+  become: yes
+
+  tasks:
+    #- name: Set SSH daemon Port to 2024
+    # ansible.builtin.lineinfile:
+    #   path: /etc/ssh/sshd_config
+    #   regexp: '^#?Port '
+    #   line: 'Port 2024'
+    #   state: present
+
+    - name: Disable root login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin '
+        line: 'PermitRootLogin no'
+        state: present
+
+    - name: Enable PubkeyAuthentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PubkeyAuthentication '
+        line: 'PubkeyAuthentication yes'
+        state: present
+
+    - name: Disable PasswordAuthentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication '
+        line: 'PasswordAuthentication no'
+        state: present
+
+    - name: Restart SSH service
+      ansible.builtin.service:
+        name: ssh
+        state: restarted
+

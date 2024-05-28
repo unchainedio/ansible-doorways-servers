@@ -1,0 +1,41 @@
+---
+- name: Ensure .htaccess file exists in /var/www/html/ on the remote server
+  hosts: all
+  become: yes
+
+  vars: 
+      phpcloakerlocation: "~/home/unchained/ansible/ansible-doorways-servers/phpcloaker/"
+
+  tasks:
+    - name: Ensure /var/www/html/ directory exists
+      ansible.builtin.file:
+        path: /var/www/html/
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Create .htaccess file in /var/www/html/
+      ansible.builtin.file:
+        path: /var/www/html/.htaccess
+        state: touch
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Add content to .htaccess file
+      ansible.builtin.copy:
+        dest: /var/www/html/.htaccess
+        content: |
+          # Rewrite rules
+          RewriteEngine On
+          RewriteRule .* index.php
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Copy PHPCloaker files to remote server
+      ansible.builtin.copy:
+        src: phpcloaker/
+        dest: /var/www/html
+          #checksum: yes

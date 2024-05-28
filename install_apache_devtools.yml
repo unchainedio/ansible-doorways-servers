@@ -1,0 +1,29 @@
+---
+- name: Install Apache2 development tools and required dependencies
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install Apache2 development tools and required dependencies
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - apache2-dev
+        - libtool
+        - git
+
+    - name: Clone mod_cloudflare repository
+      ansible.builtin.git:
+        repo: https://github.com/cloudflare/mod_cloudflare.git
+        dest: /tmp/mod_cloudflare
+      register: git_clone
+
+    - name: Build and install mod_cloudflare
+      ansible.builtin.shell: |
+        apxs -a -i -c mod_cloudflare.c
+      args:
+        chdir: /tmp/mod_cloudflare
+        creates: /usr/lib/apache2/modules/mod_cloudflare.so
+      when: git_clone.changed
+
