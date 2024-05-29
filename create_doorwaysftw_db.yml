@@ -1,0 +1,91 @@
+# list_mysql_databases.yml
+---
+- name: List MySQL Databases
+  hosts: all
+  become: yes
+
+  vars_files:
+    - secret.enc
+
+
+  vars:
+    mysql_db: "go_weblog"
+    mysql_tables:
+      - name: Domains
+        query: |
+          CREATE TABLE IF NOT EXISTS `Domains` (
+            `ID` int NOT NULL AUTO_INCREMENT,
+            `Domainname` varchar(64) NOT NULL,
+            PRIMARY KEY (`ID`),
+            UNIQUE KEY `Domainname` (`Domainname`)
+          ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+      - name: Hits
+        query: |
+          CREATE TABLE IF NOT EXISTS `Hits` (
+            `ID` int NOT NULL AUTO_INCREMENT,
+            `ServerIdent` int NOT NULL,
+            `Timestamp` timestamp NOT NULL,
+            `IP` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+            `UserAgent` varchar(256) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+            `RequestedDomain` int NOT NULL,
+            `RequestedURL` varchar(512) NOT NULL,
+            `Referrer` varchar(512) NOT NULL,
+            `HTTPStatusResponse` int NOT NULL,
+            `AdditionalData` text,
+            PRIMARY KEY (`ID`),
+            KEY `RequestedDomain` (`RequestedDomain`),
+            KEY `ServerIdent` (`ServerIdent`)
+          ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+      - name: ServerIdents
+        query: |
+          CREATE TABLE IF NOT EXISTS `ServerIdents` (
+            `ID` int NOT NULL AUTO_INCREMENT,
+            `ServerIdent` varchar(64) NOT NULL,
+            PRIMARY KEY (`ID`),
+            UNIQUE KEY `ServerIdent` (`ServerIdent`)
+          ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+
+
+
+  tasks:
+    - name: Ensure MySQL server is installed
+      ansible.builtin.package:
+        name: mysql-server
+        state: present
+
+    - name: Start MySQL service
+      ansible.builtin.service:
+        name: mysql
+        state: started
+        enabled: true
+
+    - name: Create the go_weblog database if it doesn't exist
+      community.mysql.mysql_db:
+        name: "{{ mysql_db }}"
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        state: present
+
+    - name: Create tables in the go_weblog database
+      community.mysql.mysql_query:
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        login_db: "{{ mysql_db }}"
+        query: "{{ item.query }}"
+      loop: "{{ mysql_tables }}"
+      loop_control:
+        label: "{{ item.name }}"
+        
+
+    - name: List all MySQL databases
+      community.mysql.mysql_query:
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        query: "SHOW DATABASES;"
+      register: Databases
+
+    - name: Display MySQL databases
+      ansible.builtin.debug:
+        msg: "{{ Databases.query_result }}"
+
