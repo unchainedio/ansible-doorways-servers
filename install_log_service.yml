@@ -12,7 +12,7 @@
     project_dir: "/root/doorwaysftw/log_service"
     go_version: 1.21
     user: "linuxuser"
-
+    mysql_user: "root"
 
   tasks:
     #- name: Ensure the destination directory is absent
@@ -50,7 +50,23 @@
         line: "go {{ go_version }}"
         state: present
 
+    - name: Replace MySQL username in main.go
+      lineinfile:
+        path: /root/doorwaysftw/log_service/main.go
+          #regexp: '^username\s*=\s*"MYSQL_USER"$'
+        regexp: '^\s*username\s*=\s*"MYSQL_USER"$'
+        line: 'username = "{{ mysql_user }}"'
+        backrefs: yes
+        state: present
 
+    - name: Replace MySQL password in main.go
+      lineinfile:
+        path: /root/doorwaysftw/log_service/main.go
+          #regexp: '^password\s*=\s*"MYSQL_PASS"$'
+        regexp: '^\s*password\s*=\s*"MYSQL_PASS"$'
+        line: 'password = "{{ mysql_root_password }}"'
+        backrefs: yes
+        state: present
 
     - name: Compile Go binary
       ansible.builtin.shell: |
