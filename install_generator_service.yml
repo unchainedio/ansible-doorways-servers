@@ -15,12 +15,23 @@
 
 
   tasks:
-    - name: Ensure the destination directory is absent
-      ansible.builtin.file:
-        path: "{{ clone_dest }}"
-        state: absent
+    #- name: Ensure the destination directory is absent
+    #  ansible.builtin.file:
+    #   path: "{{ clone_dest }}"
+    #   state: absent
           #become_user: yes
           #
+    - name: Get the latest commit hash from GitHub
+      ansible.builtin.command: "git ls-remote https://{{ github_token }}@github.com/ralfchristian/doorwaysftw.git HEAD"
+      register: github_commit
+
+    - name: Get the current commit hash on the remote server
+      ansible.builtin.command: "git rev-parse HEAD"
+      args:
+        chdir: "{{ clone_dest }}"
+      register: local_commit
+      ignore_errors: true
+
     - name: Clone the private GitHub repository
       ansible.builtin.git:
         repo: "https://{{ github_token }}@github.com/ralfchristian/doorwaysftw.git"
@@ -28,6 +39,9 @@
         version: main
         force: yes
         accept_hostkey: yes
+        update: yes
+      when: local_commit.failed
+        
 
     - name: Replace Go version in go.mod
       lineinfile:
@@ -58,7 +72,7 @@
         dest: /etc/systemd/system/{{ go_binary_name }}.service
         content: |
           [Unit]
-          Description=Generator Service
+          Description={{ go_binary_name }}
           After=network.target
 
           [Service]
@@ -77,7 +91,7 @@
       command: systemctl daemon-reload
 
     - name: restart the generator_service
-      command: systemctl restart generator_service
+      command: systemctl restart "{{ go_binary_name }}"
 
     - name: Enable generator_service to start on boot
       systemd:
