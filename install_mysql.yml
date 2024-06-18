@@ -13,3 +13,20 @@
         name: mysql-server
         state: present
         force_apt_get: yes
+
+
+    - name: Install MySQL Client
+      ansible.builtin.apt:
+        name: mysql-client
+        state: present
+
+
+    - name: Install Python3 and pip if not already installed
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3
+        - python3-pip
+
+    

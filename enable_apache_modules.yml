@@ -36,11 +36,35 @@
         regexp: '^MaxRequestWorkers\s+'
         line: 'MaxRequestWorkers 2048'
 
+    - name: Ensure AllowOverride is set to All in /var/www/ directory
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^\s*AllowOverride\s+None\s*$'
+        line: '    AllowOverride All'
+        insertafter: '^<Directory /var/www/>$'
+        state: present
+
+    - name: Ensure AllowOverride is present in the correct section
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: '^\s*AllowOverride\s+.*$'
+        line: '    AllowOverride All'
+        insertafter: '^<Directory /var/www/>$'
+        state: present
+        backrefs: yes
+
   
+
   
     - name: Update LogFormat in apache2.conf
       ansible.builtin.lineinfile:
         path: /etc/apache2/apache2.conf
         regexp: '^LogFormat\s+"[^"]*"\s+combined'
         line: 'LogFormat "%h %l %u %t \"%{Host}i %r\" %>s %O \"%{Referer}i\" \"%{User-Agent}i\"" combined'
+
+
+    - name: Restart Apache
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
 

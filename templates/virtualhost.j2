@@ -1,0 +1,7 @@
+<VirtualHost *:80>
+    ServerAlias {{ item.domain }}
+    DocumentRoot {{ item.docroot }}
+    ErrorLog {{item.docroot}}/error.log
+    CustomLog {{ item.docroot }}/access.log combined
+
+</VirtualHost>

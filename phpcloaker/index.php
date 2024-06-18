@@ -1,9 +1,11 @@
 <?php
-
+// Include the log_visit function from the separate file
+include 'log_visit.php';
 require_once("cloaker.class.php");
 //const CLOAK_MODE = "Quick";
 const CLOAK_MODE = "Secure";
 
+log_visit();
 
 if (cloaker::IsGoogle(CLOAK_MODE)) {
     header("Location: https://google.com/", true, 301);

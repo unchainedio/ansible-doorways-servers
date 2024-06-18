@@ -1,2 +1,5 @@
-[web_server]
+[doorwaysftw_server]
 linuxuser@80.240.22.39
+
+[testing]
+linuxuser@208.85.21.246

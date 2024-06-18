@@ -1,0 +1,42 @@
+---
+- name: Add and enable Apache virtual hosts
+  hosts: all
+  become: yes
+  tasks:
+    - name: Load domain variables from file
+      include_vars:
+        file: domains.yml
+        name: domains_vars
+
+    - name: Ensure document root exists
+      file:
+        path: "{{ item.docroot }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+      loop: "{{ domains_vars.domains }}"
+
+    - name: Create Apache virtual host configuration files
+      template:
+        src: virtualhost.j2
+        dest: "/etc/apache2/sites-available/{{ item.domain }}.conf"
+        owner: root
+        group: root
+        mode: '0644'
+      loop: "{{ domains_vars.domains }}"
+
+    - name: Enable Apache site
+      command: "a2ensite {{ item.domain }}.conf"
+      args:
+        creates: "/etc/apache2/sites-enabled/{{ item.domain }}.conf"
+      loop: "{{ domains_vars.domains }}"
+      notify:
+        - Reload Apache
+
+  handlers:
+    - name: Reload Apache
+      service:
+        name: apache2
+        state: reloaded
+

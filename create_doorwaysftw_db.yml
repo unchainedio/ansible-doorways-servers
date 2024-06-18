@@ -9,6 +9,7 @@
 
 
   vars:
+    ansible_python_interpreter: /usr/bin/python3
     mysql_db: "go_weblog"
     mysql_tables:
       - name: Domains
@@ -59,10 +60,20 @@
         state: started
         enabled: true
 
+  
+    - name: Install Python3 and MySQL libraries
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - python3
+        - python3-pip
+        - python3-mysql.connector  # PyMySQL is available as a MySQL connector in Debian-based systems
+        - python3-mysqldb  # mysqlclient library in Debian-based systems
+
     - name: Create the go_weblog database if it doesn't exist
       community.mysql.mysql_db:
         name: "{{ mysql_db }}"
-        state: present
         login_user: root
         login_password: "{{ mysql_root_password }}"
         state: present
