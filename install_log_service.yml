@@ -35,32 +35,32 @@
         accept_hostkey: yes
       when: not repo_exists.stat.exists
 
-    - name: Fetch the latest changes from the remote repository
-      command: git fetch origin
-      args:
-        chdir: "{{ clone_dest }}"
-      when: repo_exists.stat.exists
+    #    - name: Fetch the latest changes from the remote repository
+      #  command: git fetch origin
+      #args:
+       # chdir: "{{ clone_dest }}"
+      #when: repo_exists.stat.exists
 
-    - name: Check for differences between local and remote repository
-      command: git diff origin/main --name-only
-      args:
-        chdir: "{{ clone_dest }}"
-      register: git_diff
-      when: repo_exists.stat.exists
+    #- name: Check for differences between local and remote repository
+      #command: git diff origin/main --name-only
+      #args:
+        #  chdir: "{{ clone_dest }}"
+      # register: git_diff
+      # when: repo_exists.stat.exists
 
-    - name: Pull the latest changes if there are differences
-      ansible.builtin.git:
-        repo: "{{ github_repo }}"
-        dest: "{{ clone_dest }}"
-        version: main
-        accept_hostkey: yes
-        update: yes
-      when: git_diff.stdout != ''
+    #- name: Pull the latest changes if there are differences
+      # ansible.builtin.git:
+       # repo: "{{ github_repo }}"
+        #dest: "{{ clone_dest }}"
+        #version: main
+        #accept_hostkey: yes
+        #update: yes
+      #when: git_diff.stdout != ''
 
-    - name: Debug output if repository is up to date
-      debug:
-        msg: "The local repository is up to date."
-      when: git_diff.stdout == ''
+    #- name: Debug output if repository is up to date
+      # debug:
+       # msg: "The local repository is up to date."
+      #when: git_diff.stdout == ''
 
     
         #- name: Get the latest commit hash from GitHub
@@ -85,12 +85,12 @@
         #when: local_commit.failed
         
 
-    - name: Replace Go version in go.mod
-      lineinfile:
-        path: "{{ project_dir }}/go.mod"
-        regexp: '^go\s+\d+\.\d+(\.\d+)?'
-        line: "go {{ go_version }}"
-        state: present
+    #- name: Replace Go version in go.mod
+      # lineinfile:
+       # path: "{{ project_dir }}/go.mod"
+        #regexp: '^go\s+\d+\.\d+(\.\d+)?'
+        #line: "go {{ go_version }}"
+        #state: present
 
     - name: Replace MySQL username in main.go
       lineinfile:
@@ -110,11 +110,19 @@
         backrefs: yes
         state: present
 
-    - name: Compile Go binary
+    - name: Compile Go binary as root
       ansible.builtin.shell: |
+        . /etc/profile
         go build -o {{ go_binary_name }} main.go
       args:
         chdir: "{{ project_dir }}"
+      become: yes
+
+    #- name: Compile Go binary
+      # ansible.builtin.shell: |
+        #  go build -o {{ go_binary_name }} main.go
+      #args:
+        # chdir: "{{ project_dir }}"
           #become_user: yes
 
     - name: Ensure Go binary is executable

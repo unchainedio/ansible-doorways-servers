@@ -8,8 +8,8 @@
   vars:
     github_repo: "https://github.com/ralfchristian/doorwaysftw"
     clone_dest: "~/doorwaysftw"
-    go_binary_name: "generator_service"
-    project_dir: "/root/doorwaysftw/generator_service"
+    go_binary_name: "config_service"
+    project_dir: "/root/doorwaysftw/config_service"
     go_version: 1.21
     user: "linuxuser"
 
@@ -73,7 +73,7 @@
         group: root
 
 
-    - name: Create systemd service file for generator_service
+    - name: Create systemd service file for config_service
       copy:
         dest: /etc/systemd/system/{{ go_binary_name }}.service
         content: |
@@ -96,10 +96,10 @@
     - name: Reload systemd to apply new service file
       command: systemctl daemon-reload
 
-    - name: restart the generator_service
+    - name: restart the config_service
       command: systemctl restart "{{ go_binary_name }}"
 
-    - name: Enable generator_service to start on boot
+    - name: Enable config_service to start on boot
       systemd:
         name: "{{ go_binary_name }}"
         enabled: yes
