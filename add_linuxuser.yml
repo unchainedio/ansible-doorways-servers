@@ -29,4 +29,10 @@
         groups: sudo
         append: yes
 
-
+    - name: Add linuxuser to the sudoers file to allow sudo without a password
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^linuxuser'
+        line: 'linuxuser ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
