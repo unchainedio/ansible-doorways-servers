@@ -1,31 +1,7 @@
 domains:
-  - domain: unchained1.xyz
+  - domain: playthingtest.xyz
     docroot: /var/www/html
-    serveradmin: webmaster@unchained1.xyz
-  - domain: unchained2.xyz
+    serveradmin: webmaster@playthingtest.xyz
+  - domain: playthingtesting.xyz
     docroot: /var/www/html
-    serveradmin: webmaster@unchained2.xyz
-  - domain: unchained3.xyz
-    docroot: /var/www/html
-    serveradmin: webmaster@unchained3.xyz
-  - domain: unchained4.xyz
-    docroot: /var/www/html
-    serveradmin: webmaster@unchained4.xyz
-  - domain: unchained5.xyz
-    docroot: /var/www/html
-    serveradmin: webmaster@unchained5.xyz
-  - domain: unchained6.xyz
-    docroot: /var/www/html
-    serveradmin: webmaster@unchained6.xyz
-  - domain: unchained7.xyz
-    docroot: /var/www/html
-    serveradmin: webmaster@unchained7.xyz
-  - domain: unchained8.xyz
-    docroot: /var/www/html
-    serveradmin: webmaster@unchained8.xyz
-  - domain: unchained9.xyz
-    docroot: /var/www/html
-    serveradmin: webmaster@unchained9.xyz
-  - domain: unchained10.xyz
-    docroot: /var/www/html
-    serveradmin: webmaster@unchained10.xyz
+    serveradmin: webmaster@playthingtesting.xyz

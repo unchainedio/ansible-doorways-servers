@@ -9,6 +9,12 @@
         cmd: a2enmod ssl
         creates: /etc/apache2/mods-enabled/ssl.load
 
+    - name: Enable RemoteIP module
+      ansible.builtin.command:
+        cmd: a2enmod remoteip
+        creates: /etc/apache2/mods-enabled/remoteip.load
+
+
     - name: Enable rewrite module
       ansible.builtin.command:
         cmd: a2enmod rewrite

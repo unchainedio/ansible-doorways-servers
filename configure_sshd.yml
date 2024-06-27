@@ -10,6 +10,15 @@
     #   regexp: '^#?Port '
     #   line: 'Port 2024'
     #   state: present
+    - name: Ensure SSH server keep-alive settings are present
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        create: yes
+        line: "{{ item }}"
+        state: present
+      loop:
+        - "ClientAliveInterval 60"
+        - "ClientAliveCountMax 500"
 
     - name: Disable root login
       ansible.builtin.lineinfile:
