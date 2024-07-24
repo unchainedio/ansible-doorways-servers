@@ -1,0 +1,31 @@
+---
+- name: Clone GitHub repository with specific branch
+  hosts: all
+  become: yes
+  vars_files:
+    - secret.enc
+  vars:
+    github_repo: "https://{{ github_token }}@github.com/unchainedio/doorwaysftw.git"
+    clone_dest: "~/doorwaysftw"
+    branch: "{{ branch_name | default('main') }}"
+  tasks:
+    - name: Check if the repository already exists
+      stat:
+        path: "{{ clone_dest }}"
+      register: repo_exists
+
+    - name: Remove existing repository if it exists
+      file:
+        path: "{{ clone_dest }}"
+        state: absent
+      when: repo_exists.stat.exists
+
+    - name: Clone the GitHub repository
+      git:
+        repo: "{{ github_repo }}"
+        dest: "{{ clone_dest }}"
+        version: "{{ branch }}"
+        force: yes
+        accept_hostkey: yes
+        update: yes
+

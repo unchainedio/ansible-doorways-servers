@@ -22,18 +22,18 @@
           #become_user: yes
           #
           #
-    - name: Check if the repository exists
-      stat:
-        path: "{{ clone_dest }}/.git"
-      register: repo_exists
+          #    - name: Check if the repository exists
+          #stat:
+          #path: "{{ clone_dest }}/.git"
+          #register: repo_exists
 
-    - name: Clone the repository if it does not exist
-      ansible.builtin.git:
-        repo: "{{ github_repo }}"
-        dest: "{{ clone_dest }}"
-        version: main
-        accept_hostkey: yes
-      when: not repo_exists.stat.exists
+    #- name: Clone the repository if it does not exist
+    # ansible.builtin.git:
+    #   repo: "{{ github_repo }}"
+    #   dest: "{{ clone_dest }}"
+    #   version: main
+    #   accept_hostkey: yes
+    # when: not repo_exists.stat.exists
 
     #    - name: Fetch the latest changes from the remote repository
       #  command: git fetch origin

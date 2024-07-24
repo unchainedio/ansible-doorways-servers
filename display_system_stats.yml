@@ -1,0 +1,36 @@
+---
+- name: Gather and print system usage metrics using custom commands
+  hosts: all
+  become: true  # Use become if you need elevated privileges
+
+  tasks:
+    # Print disk space usage
+    - name: Print disk space usage
+      command: df -h
+      register: disk_space
+
+    # Print memory usage
+    - name: Print memory usage
+      command: free -h
+      register: memory_usage
+
+    # Print CPU usage
+    - name: Print CPU usage
+      shell: top -bn1 | grep "Cpu(s)"
+      register: cpu_usage
+
+    # Print disk space output
+    - name: Print disk space output
+      debug:
+        msg: "Disk space usage:\n{{ disk_space.stdout }}"
+
+    # Print memory usage output
+    - name: Print memory usage output
+      debug:
+        msg: "Memory usage:\n{{ memory_usage.stdout }}"
+
+    # Print CPU usage output
+    - name: Print CPU usage output
+      debug:
+        msg: "CPU usage:\n{{ cpu_usage.stdout }}"
+

@@ -21,26 +21,26 @@
     #   state: absent
           #become_user: yes
           #
-    - name: Get the latest commit hash from GitHub
-      ansible.builtin.command: "git ls-remote https://{{ github_token }}@github.com/ralfchristian/doorwaysftw.git HEAD"
-      register: github_commit
+          #- name: Get the latest commit hash from GitHub
+          #ansible.builtin.command: "git ls-remote https://{{ github_token }}@github.com/ralfchristian/doorwaysftw.git HEAD"
+          #register: github_commit
 
-    - name: Get the current commit hash on the remote server
-      ansible.builtin.command: "git rev-parse HEAD"
-      args:
-        chdir: "{{ clone_dest }}"
-      register: local_commit
-      ignore_errors: true
+    #- name: Get the current commit hash on the remote server
+    # ansible.builtin.command: "git rev-parse HEAD"
+    # args:
+    #   chdir: "{{ clone_dest }}"
+    # register: local_commit
+    # ignore_errors: true
 
-    - name: Clone the private GitHub repository
-      ansible.builtin.git:
-        repo: "https://{{ github_token }}@github.com/ralfchristian/doorwaysftw.git"
-        dest: "{{ clone_dest }}"
-        version: main
-        force: yes
-        accept_hostkey: yes
-        update: yes
-      when: local_commit.failed
+    #- name: Clone the private GitHub repository
+    #  ansible.builtin.git:
+    #   repo: "https://{{ github_token }}@github.com/ralfchristian/doorwaysftw.git"
+    #   dest: "{{ clone_dest }}"
+    #   version: main
+    #   force: yes
+    #   accept_hostkey: yes
+    #   update: yes
+    # when: local_commit.failed
         
 
     #    - name: Replace Go version in go.mod
