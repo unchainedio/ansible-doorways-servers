@@ -29,6 +29,18 @@
          state: started
          enabled: yes
 
+
+    - name: Set MySQL root user password
+      mysql_user:
+        name: root
+        host: localhost
+        password: "{{ root_password }}"
+        login_user: root
+        login_password: "{{ root_password }}"
+        priv: '*.*:ALL,GRANT'
+        auth_plugin: mysql_native_password
+        state: present
+
            #- name: Set root user password
            #mysql_user:
            #name: root

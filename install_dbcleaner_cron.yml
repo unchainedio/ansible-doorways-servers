@@ -1,0 +1,58 @@
+---
+- name: Set up script and cron job to remove old hits and purge old binary logs
+  hosts: all
+  become: yes
+
+  vars_files:
+    - secret.enc
+
+  tasks:
+    - name: Create the bash script to remove old hits and purge binary logs
+      copy:
+        content: |
+          #!/bin/bash
+
+          # MySQL credentials
+          USER="root"
+          PASSWORD="{{ mysql_root_password }}" # replace with your actual password
+          DATABASE="go_weblog"
+          TABLE="Hits"
+
+          # SQL queries
+          DELETE_QUERY="DELETE FROM $TABLE WHERE timestamp < NOW() - INTERVAL 3 DAY;"
+          PURGE_QUERY="PURGE BINARY LOGS BEFORE NOW() - INTERVAL 3 DAY;"
+
+          # Log file
+          LOGFILE="/var/log/remove_old_hits.log"
+
+          # Execute the delete query
+          echo "$(date): Running delete query" | sudo tee -a $LOGFILE
+          mysql -u $USER -p$PASSWORD -D $DATABASE -e "$DELETE_QUERY" >> $LOGFILE 2>&1
+
+          # Check the exit status of the delete query
+          if [ $? -eq 0 ]; then
+              echo "$(date): Successfully removed rows older than 3 days from $TABLE table." | sudo tee -a $LOGFILE
+          else
+              echo "$(date): Failed to remove rows from $TABLE table." | sudo tee -a $LOGFILE
+          fi
+
+          # Execute the purge query
+          echo "$(date): Running purge binary logs query" | sudo tee -a $LOGFILE
+          mysql -u $USER -p$PASSWORD -e "$PURGE_QUERY" >> $LOGFILE 2>&1
+
+          # Check the exit status of the purge query
+          if [ $? -eq 0 ]; then
+              echo "$(date): Successfully purged binary logs older than 3 days." | sudo tee -a $LOGFILE
+          else
+              echo "$(date): Failed to purge binary logs." | sudo tee -a $LOGFILE
+          fi
+        dest: /usr/local/bin/remove_old_hits.sh
+        mode: '0700'
+
+    - name: Create a cron job to run the script every 15 minutes as root
+      cron:
+        name: "Remove old hits from Hits table and purge binary logs"
+        minute: "*/15"
+        user: root
+        job: "/usr/local/bin/remove_old_hits.sh"
+
